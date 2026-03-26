@@ -42,3 +42,17 @@ async def upload_pdf(file: UploadFile = File(...)):
             status_code=500,
             detail=f"Error processing PDF: {str(e)}",
         )
+
+@router.post("/clear")
+async def clear_documents():
+    """Clear all documents from the vector store."""
+    from services.vector_store import vector_store
+    
+    try:
+        vector_store.clear()
+        return {"status": "success", "message": "All documents and chat history cleared."}
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error clearing documents: {str(e)}",
+        )

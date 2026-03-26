@@ -4,6 +4,7 @@ import Chat from './components/Chat';
 
 export default function App() {
   const [documents, setDocuments] = useState([]);
+  const [sessionId, setSessionId] = useState(Date.now());
   const chatRef = useRef(null);
 
   const handleUploadSuccess = (result) => {
@@ -23,6 +24,11 @@ export default function App() {
         sources: result.sources,
       });
     }
+  };
+
+  const handleClear = () => {
+    setDocuments([]);
+    setSessionId(Date.now()); // Forces Chat component to remount and lose its messages state
   };
 
   return (
@@ -52,11 +58,12 @@ export default function App() {
           <Upload
             onUploadSuccess={handleUploadSuccess}
             onSummary={handleSummary}
+            onClear={handleClear}
             documents={documents}
           />
         </aside>
         <section className="chat-area">
-          <Chat ref={chatRef} hasDocuments={documents.length > 0} />
+          <Chat key={sessionId} ref={chatRef} hasDocuments={documents.length > 0} />
         </section>
       </main>
     </div>

@@ -1,11 +1,12 @@
 import React, { useCallback, useState } from 'react';
-import { uploadPDF, summarizeDocuments } from '../api';
+import { uploadPDF, summarizeDocuments, clearDocuments } from '../api';
 
-export default function Upload({ onUploadSuccess, onSummary, documents }) {
+export default function Upload({ onUploadSuccess, onSummary, onClear, documents }) {
   const [isDragging, setIsDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
   const [summarizing, setSummarizing] = useState(false);
+  const [clearing, setClearing] = useState(false);
 
   const handleDrop = useCallback(async (e) => {
     e.preventDefault();
@@ -50,6 +51,19 @@ export default function Upload({ onUploadSuccess, onSummary, documents }) {
       setError(err.response?.data?.detail || 'Summarization failed.');
     } finally {
       setSummarizing(false);
+    }
+  };
+
+  const handleClearChat = async () => {
+    if (!window.confirm("Are you sure you want to delete all uploaded documents and start a new conversation?")) return;
+    setClearing(true);
+    try {
+      await clearDocuments();
+      if (onClear) onClear();
+    } catch (err) {
+      setError(err.response?.data?.detail || 'Failed to clear documents.');
+    } finally {
+      setClearing(false);
     }
   };
 
@@ -127,6 +141,19 @@ export default function Upload({ onUploadSuccess, onSummary, documents }) {
               <><div className="spinner-sm" /> Summarizing...</>
             ) : (
               <><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="21" y1="10" x2="3" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="14" x2="3" y2="14"/><line x1="21" y1="18" x2="3" y2="18"/></svg> Summarize All</>
+            )}
+          </button>
+          
+          <button
+            className="summarize-btn"
+            onClick={handleClearChat}
+            disabled={summarizing || clearing}
+            style={{ marginTop: '10px', backgroundColor: 'rgba(239, 68, 68, 0.15)', color: '#ff6b6b', border: '1px solid rgba(239, 68, 68, 0.3)' }}
+          >
+            {clearing ? (
+              <><div className="spinner-sm" /> Clearing...</>
+            ) : (
+              <><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg> Clear Conversation</>
             )}
           </button>
         </div>

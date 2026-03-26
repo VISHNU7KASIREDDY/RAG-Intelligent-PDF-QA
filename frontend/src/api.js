@@ -26,3 +26,8 @@ export async function summarizeDocuments() {
   const response = await api.post('/summarize');
   return response.data;
 }
+
+export async function clearDocuments() {
+  const response = await api.post('/clear');
+  return response.data;
+}
