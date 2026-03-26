@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import ReactMarkdown from 'react-markdown';
 import Sources from './Sources';
 
 export default function Message({ message }) {
@@ -24,9 +25,32 @@ export default function Message({ message }) {
       </div>
       <div className={`message-bubble ${isUser ? 'user-bubble' : 'ai-bubble'}`}>
         <div className="message-content">
-          {message.content.split('\n').map((line, i) => (
-            <p key={i}>{line || '\u00A0'}</p>
-          ))}
+          {isUser ? (
+            <p>{message.content}</p>
+          ) : (
+            <ReactMarkdown
+              components={{
+                p: ({ children }) => <p style={{ margin: '0 0 0.5em 0' }}>{children}</p>,
+                ul: ({ children }) => <ul style={{ paddingLeft: '1.2em', margin: '0.3em 0' }}>{children}</ul>,
+                ol: ({ children }) => <ol style={{ paddingLeft: '1.2em', margin: '0.3em 0' }}>{children}</ol>,
+                li: ({ children }) => <li style={{ marginBottom: '0.2em' }}>{children}</li>,
+                strong: ({ children }) => <strong style={{ fontWeight: 700 }}>{children}</strong>,
+                code: ({ inline, children }) =>
+                  inline ? (
+                    <code style={{ background: 'rgba(255,255,255,0.1)', borderRadius: '4px', padding: '1px 5px', fontFamily: 'monospace', fontSize: '0.9em' }}>{children}</code>
+                  ) : (
+                    <pre style={{ background: 'rgba(0,0,0,0.3)', borderRadius: '8px', padding: '0.8em', overflowX: 'auto', fontSize: '0.88em', margin: '0.5em 0' }}>
+                      <code style={{ fontFamily: 'monospace' }}>{children}</code>
+                    </pre>
+                  ),
+                h1: ({ children }) => <h1 style={{ fontSize: '1.2em', fontWeight: 700, margin: '0.4em 0' }}>{children}</h1>,
+                h2: ({ children }) => <h2 style={{ fontSize: '1.1em', fontWeight: 700, margin: '0.4em 0' }}>{children}</h2>,
+                h3: ({ children }) => <h3 style={{ fontSize: '1em', fontWeight: 700, margin: '0.3em 0' }}>{children}</h3>,
+              }}
+            >
+              {message.content}
+            </ReactMarkdown>
+          )}
         </div>
 
         {!isUser && message.sources && message.sources.length > 0 && (
