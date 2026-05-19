@@ -30,7 +30,6 @@ app.include_router(upload_router, tags=["Upload"])
 app.include_router(query_router, tags=["Query"])
 
 
-@app.get("/health")
+@app.api_route("/health", methods=["GET", "HEAD"])
 async def health_check():
-    """Health check endpoint."""
     return {"status": "ok", "service": "PDF QA System"}
